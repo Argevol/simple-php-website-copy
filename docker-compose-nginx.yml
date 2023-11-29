@@ -1,17 +1,16 @@
 version: '3'
 
 services:
-  php:
-    build: .
-    volumes:
-      - .:/var/www/html
-
   nginx:
     image: nginx:latest
     ports:
       - "8080:80"
     volumes:
-      - ./nginx:/etc/nginx/conf.d
+      - ./nginx.conf:/etc/nginx/nginx.conf
     depends_on:
       - php
 
+  php:
+    image: php:7.4-fpm
+    volumes:
+      - ./src:/var/www/html

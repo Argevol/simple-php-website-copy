@@ -1,10 +1,6 @@
 pipeline {
     agent any
 
-    environment {
-        DOCKER_HOST = 'tcp://localhost:2375' // Set your Docker host here
-    }
-
     stages {
         stage('Checkout') {
             steps {

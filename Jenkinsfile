@@ -31,10 +31,10 @@ pipeline {
                     sh 'docker-compose up -d'
 
                     // Install dependencies and run tests
-                    dockerComposeExec(command: 'sh -c', args: 'php -r "copy(\'https://getcomposer.org/installer\', \'composer-setup.php\');"')
-                    dockerComposeExec(command: 'sh -c', args: 'php composer-setup.php --install-dir=/usr/local/bin --filename=composer')
-                    dockerComposeExec(command: 'composer', args: 'install --no-interaction --no-ansi')
-                    dockerComposeExec(command: 'vendor/bin/phpunit')
+                    sh 'docker-compose exec php sh -c "php -r \"copy(\'https://getcomposer.org/installer\', \'composer-setup.php\');\""'
+                    sh 'docker-compose exec php sh -c "php composer-setup.php --install-dir=/usr/local/bin --filename=composer"'
+                    sh 'docker-compose exec php sh -c "composer install --no-interaction --no-ansi"'
+                    sh 'docker-compose exec php vendor/bin/phpunit'
 
                     // Clean up Docker containers
                     sh 'docker-compose down'
@@ -51,9 +51,11 @@ pipeline {
             }
         }
     }
-}
 
-def dockerComposeExec(Map config) {
-    // Helper function to run docker-compose exec
-    sh "docker-compose exec ${config.service} ${config.command} ${config.args}"
+    post {
+        always {
+            // Clean up Docker containers
+            sh 'docker-compose down'
+        }
+    }
 }

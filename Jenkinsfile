@@ -21,8 +21,7 @@ pipeline {
             steps {
                 script {
                     // Wait for the PHP container to be up and running
-                    sh 'docker-compose -f docker-compose-nginx.yml logs php'
-                    sh 'until docker-compose -f docker-compose-nginx.yml exec php ps aux | grep -q "nginx"; do sleep 1; done'
+                    sh 'until docker-compose -f docker-compose-nginx.yml exec php ps aux | grep -q "apache2"; do sleep 1; done'
                 }
             }
         }
@@ -30,9 +29,13 @@ pipeline {
 
     post {
         always {
-            script {
-                // Stop and remove Docker containers
-                sh 'docker-compose -f docker-compose-nginx.yml down'
+            stage('Cleanup') {
+                steps {
+                    script {
+                        // Stop and remove Docker containers
+                        sh 'docker-compose -f docker-compose-nginx.yml down'
+                    }
+                }
             }
         }
     }

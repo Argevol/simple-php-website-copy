@@ -31,7 +31,7 @@ pipeline {
                     sh 'docker-compose up -d'
 
                     // Install dependencies and run tests
-                    sh 'docker-compose exec php composer install'
+                    sh 'docker-compose exec php composer install --no-interaction'
                     sh 'docker-compose exec php vendor/bin/phpunit'
                 }
             }

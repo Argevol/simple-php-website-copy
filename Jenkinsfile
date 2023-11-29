@@ -31,10 +31,10 @@ pipeline {
                     sh 'docker-compose up -d'
 
                     // Install dependencies and run tests
-                    sh(script: 'docker-compose exec php sh -c "php -r \"copy(\'https://getcomposer.org/installer\', \'composer-setup.php\');\""', shell: '/bin/bash')
-                    sh(script: 'docker-compose exec php sh -c "php composer-setup.php --install-dir=/usr/local/bin --filename=composer"', shell: '/bin/bash')
-                    sh(script: 'docker-compose exec php sh -c "composer install --no-interaction --no-ansi"', shell: '/bin/bash')
-                    sh(script: 'docker-compose exec php vendor/bin/phpunit', shell: '/bin/bash')
+                    dockerComposeExec('php -r "copy(\'https://getcomposer.org/installer\', \'composer-setup.php\');"')
+                    dockerComposeExec('php composer-setup.php --install-dir=/usr/local/bin --filename=composer')
+                    dockerComposeExec('composer install --no-interaction --no-ansi')
+                    dockerComposeExec('vendor/bin/phpunit')
                 }
             }
         }
@@ -56,4 +56,9 @@ pipeline {
             sh 'docker-compose down'
         }
     }
+}
+
+def dockerComposeExec(script) {
+    script = "docker-compose exec php sh -c \"${script}\""
+    sh(script, returnStatus: true)
 }

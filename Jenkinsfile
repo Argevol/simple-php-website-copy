@@ -1,6 +1,6 @@
 pipeline {
     agent any
-    
+
     stages {
         stage('Checkout') {
             steps {
@@ -11,14 +11,8 @@ pipeline {
         stage('Build and Run') {
             steps {
                 script {
-                    try {
-                        // Build Docker image using docker-compose
-                        sh 'docker-compose -f docker-compose-nginx.yml up -d'
-                    } catch (Exception e) {
-                        // Print the exception for debugging
-                        echo "Exception during Docker build: ${e.message}"
-                        throw e
-                    }
+                    // Build Docker image using docker-compose
+                    sh 'docker-compose -f docker-compose-nginx.yml up -d'
                 }
             }
         }
@@ -31,16 +25,12 @@ pipeline {
                 }
             }
         }
-    }
 
-    post {
-        always {
-            stage('Cleanup') {
-                steps {
-                    script {
-                        // Stop and remove Docker container
-                        sh 'docker-compose -f docker-compose-nginx.yml down'
-                    }
+        stage('Cleanup') {
+            steps {
+                script {
+                    // Stop and remove Docker container
+                    sh 'docker-compose -f docker-compose-nginx.yml down'
                 }
             }
         }

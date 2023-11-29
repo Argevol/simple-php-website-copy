@@ -1,6 +1,10 @@
 pipeline {
     agent any
 
+    environment {
+        DOCKER_HOST = 'tcp://localhost:2375' // Set your Docker host here
+    }
+
     stages {
         stage('Checkout') {
             steps {
@@ -21,20 +25,16 @@ pipeline {
             steps {
                 script {
                     // Wait for the PHP container to be up and running
-                    sh 'until docker exec my-php-website ps aux | grep -q "nginx: master process"; do sleep 1; done'
+                    sh 'until docker exec my-php-website ps aux | grep -q "nginx"; do sleep 1; done'
                 }
             }
         }
-    }
 
-    post {
-        always {
-            stage('Cleanup') {
-                steps {
-                    script {
-                        // Stop and remove Docker container
-                        sh 'docker-compose -f docker-compose-nginx.yml down'
-                    }
+        stage('Cleanup') {
+            steps {
+                script {
+                    // Stop and remove Docker container
+                    sh 'docker-compose -f docker-compose-nginx.yml down'
                 }
             }
         }

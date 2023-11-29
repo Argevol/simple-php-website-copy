@@ -29,13 +29,9 @@ pipeline {
 
     post {
         always {
-            stage('Cleanup') {
-                steps {
-                    script {
-                        // Stop and remove Docker containers
-                        sh 'docker-compose -f docker-compose-nginx.yml down'
-                    }
-                }
+            script {
+                // Stop and remove Docker containers
+                sh 'docker-compose -f docker-compose-nginx.yml down'
             }
         }
     }

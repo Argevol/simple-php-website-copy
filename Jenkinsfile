@@ -22,16 +22,19 @@ pipeline {
                 script {
                     // Wait for the PHP container to be up and running
                     sh 'until docker exec php ps aux | grep -q "nginx"; do sleep 1; done'
-
                 }
             }
         }
+    }
 
-        stage('Cleanup') {
-            steps {
-                script {
-                    // Stop and remove Docker container
-                    sh 'docker-compose -f docker-compose-nginx.yml down'
+    post {
+        always {
+            stage('Cleanup') {
+                steps {
+                    script {
+                        // Stop and remove Docker containers
+                        sh 'docker-compose -f docker-compose-nginx.yml down'
+                    }
                 }
             }
         }

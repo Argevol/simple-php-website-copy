@@ -2,6 +2,22 @@ pipeline {
     agent any
 
     stages {
+        stage('Print Docker Host Configuration') {
+            steps {
+                script {
+                    echo "DOCKER_HOST: ${env.DOCKER_HOST}"
+                }
+            }
+        }
+
+        stage('Print Docker Daemon Status') {
+            steps {
+                script {
+                    sh 'docker info'
+                }
+            }
+        }
+
         stage('Checkout') {
             steps {
                 checkout scm

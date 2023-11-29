@@ -21,7 +21,7 @@ pipeline {
             steps {
                 script {
                     // Wait for the PHP container to be up and running
-                    sh 'until docker exec my-php-website ps aux | grep -q "nginx"; do sleep 1; done'
+                    sh 'until docker exec php ps aux | grep -q "nginx"; do sleep 1; done'
                 }
             }
         }

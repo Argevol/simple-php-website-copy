@@ -1,40 +1,31 @@
 pipeline {
     agent any
 
+    environment {
+        DOCKER_HOST = 'tcp://localhost:2375' // Set your Docker host here
+    }
+
     stages {
-        stage('Declarative: Checkout SCM') {
-            steps {
-                checkout scm
-            }
-        }
-
-        stage('Print Docker Host Configuration') {
-            steps {
-                script {
-                    echo "DOCKER_HOST: ${DOCKER_HOST}"
-                }
-            }
-        }
-
-        stage('Print Docker Daemon Status') {
-            steps {
-                sh 'docker info'
-            }
-        }
-
         stage('Checkout') {
             steps {
                 checkout scm
             }
         }
 
-        stage('Build and Test') {
+        stage('Build and Run') {
             steps {
                 script {
-                    sh 'docker-compose up -d'
-                    sh '''
-                        docker-compose exec php sh -c "php -r 'copy(\'https://getcomposer.org/installer\', \'composer-setup.php\');'"
-                    '''
+                    // Build Docker image using docker-compose
+                    sh 'docker-compose -f docker-compose-nginx.yml up -d'
+                }
+            }
+        }
+
+        stage('Wait for Container') {
+            steps {
+                script {
+                    // Wait for the PHP container to be up and running
+                    sh 'until docker exec my-php-website ps aux | grep -q "nginx"; do sleep 1; done'
                 }
             }
         }
@@ -42,9 +33,12 @@ pipeline {
 
     post {
         always {
-            stage('Declarative: Post Actions') {
+            stage('Cleanup') {
                 steps {
-                    sh 'docker-compose down'
+                    script {
+                        // Stop and remove Docker container
+                        sh 'docker-compose -f docker-compose-nginx.yml down'
+                    }
                 }
             }
         }

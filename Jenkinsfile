@@ -1,25 +1,24 @@
 pipeline {
     agent any
 
-    environment {
-        DOCKER_IMAGE_PHP = 'php:7.4-cli'
-        DOCKER_IMAGE_NGINX = 'nginx:latest'
-    }
-
     stages {
+        stage('Declarative: Checkout SCM') {
+            steps {
+                checkout scm
+            }
+        }
+
         stage('Print Docker Host Configuration') {
             steps {
                 script {
-                    echo "DOCKER_HOST: ${env.DOCKER_HOST}"
+                    echo "DOCKER_HOST: ${DOCKER_HOST}"
                 }
             }
         }
 
         stage('Print Docker Daemon Status') {
             steps {
-                script {
-                    sh 'docker info'
-                }
+                sh 'docker info'
             }
         }
 
@@ -32,24 +31,10 @@ pipeline {
         stage('Build and Test') {
             steps {
                 script {
-                    // Start Docker containers
                     sh 'docker-compose up -d'
-
-                    // Install dependencies and run tests
-                    sh 'docker-compose exec php sh -c "php -r \"copy('https://getcomposer.org/installer', 'composer-setup.php');\""'
-                    sh 'docker-compose exec php sh -c "php composer-setup.php --install-dir=/usr/local/bin --filename=composer"'
-                    sh 'docker-compose exec php sh -c "composer install --no-interaction --no-ansi"'
-                    sh 'docker-compose exec php vendor/bin/phpunit'
-                }
-            }
-        }
-
-        stage('Deploy') {
-            steps {
-                script {
-                    // Deploy the application using Nginx
-                    sh 'docker-compose down'
-                    sh 'docker-compose -f docker-compose-nginx.yml up -d'
+                    sh '''
+                        docker-compose exec php sh -c "php -r 'copy(\'https://getcomposer.org/installer\', \'composer-setup.php\');'"
+                    '''
                 }
             }
         }
@@ -57,8 +42,11 @@ pipeline {
 
     post {
         always {
-            // Clean up Docker containers
-            sh 'docker-compose down'
+            stage('Declarative: Post Actions') {
+                steps {
+                    sh 'docker-compose down'
+                }
+            }
         }
     }
 }

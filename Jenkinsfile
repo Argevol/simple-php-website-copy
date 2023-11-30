@@ -5,7 +5,7 @@ pipeline {
         registry = 'cheapyd'
         imageName = 'simple-php-website'
         dockerImage = "${registry}/${imageName}"
-        dockerhubCredentials = 'dockerhub_credentials'
+        dockerhubToken = 'dckr_pat_ww_g--d1OctECw8_g7VTd5MPIYQ'
     }
 
     stages {
@@ -19,9 +19,8 @@ pipeline {
             steps {
                 script {
                     docker.build dockerImage, "-f Dockerfile ."
-                    withDockerRegistry([credentialsId: dockerhubCredentials, url: 'https://registry.hub.docker.com']) {
-                        dockerImage.push()
-                    }
+                    sh "docker login -u cheapyd -p ${dockerhubToken}"
+                    sh "docker push ${dockerImage}"
                 }
             }
         }

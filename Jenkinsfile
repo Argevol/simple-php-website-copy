@@ -24,5 +24,13 @@ pipeline {
                 }
             }
         }
+
+        stage('Run Docker Container') {
+            steps {
+                script {
+                    sh "docker run -p 8080:80 ${dockerImage}"
+                }
+            }
+        }
     }
 }

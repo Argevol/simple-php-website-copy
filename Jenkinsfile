@@ -40,8 +40,9 @@ pipeline {
         stage('Deploy') {
             steps {
                 script {
-                    // Deploy using Docker and NGINX
-                    sh 'docker-compose up -d'
+                    // Rebuild and redeploy Docker containers
+                    sh 'docker-compose down'
+                    sh 'docker-compose up -d --build'
                 }
             }
         }

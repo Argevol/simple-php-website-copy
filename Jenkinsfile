@@ -2,39 +2,24 @@ pipeline {
     agent any
 
     stages {
-        stage('Checkout') {
-            steps {
-                checkout scm
-            }
-        }
-
-        stage('Build and Run') {
+        stage('Build') {
             steps {
                 script {
-                    // Build Docker image using docker-compose
-                    sh 'docker-compose -f docker-compose-nginx.yml up -d'
-                }
-            }
-        }
-
-        stage('Wait for Container') {
-            steps {
-                script {
-                    // Wait for the PHP container to be up and running
-                    sh 'until docker-compose -f docker-compose-nginx.yml exec php ps aux | grep -q "apache2"; do sleep 1; done'
+                    docker.image('php:7.4-apache').inside {
+                        sh 'php -S 0.0.0.0:8080'
+                    }
                 }
             }
         }
     }
 
     post {
-        always {
-            stage('Cleanup') {
-                steps {
-                    script {
-                        // Stop and remove Docker containers
-                        sh 'docker-compose -f docker-compose-nginx.yml down'
-                    }
+        success {
+            echo 'Build succeeded! Pushing to DockerHub...'
+            script {
+                docker.withRegistry('https://registry.hub.docker.com', 'dockerhub_credentials') {
+                    app = docker.build('yourdockerhubusername/simple-php-website', '.')
+                    app.push()
                 }
             }
         }

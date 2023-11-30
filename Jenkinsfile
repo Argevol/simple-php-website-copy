@@ -28,6 +28,7 @@ pipeline {
         stage('Run Docker Container') {
             steps {
                 script {
+                    // Adjust this line based on your docker-compose.yml file location
                     sh "docker-compose up -d"
                 }
             }

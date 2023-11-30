@@ -1,25 +1,26 @@
 pipeline {
     agent any
 
-    stages {
-        stage('Build') {
-            steps {
-                script {
-                    docker.image('php:7.4-apache').inside {
-                        sh 'php -S 0.0.0.0:8080'
-                    }
-                }
-            }
-        }
+    environment {
+        registry = 'cheapyd'
+        imageName = 'simple-php-website'
+        dockerImage = "${registry}/${imageName}"
     }
 
-    post {
-        success {
-            echo 'Build succeeded! Pushing to DockerHub...'
-            script {
-                docker.withRegistry('https://registry.hub.docker.com', 'dockerhub_credentials') {
-                    app = docker.build('yourdockerhubusername/simple-php-website', '.')
-                    app.push()
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('Build and Push to DockerHub') {
+            steps {
+                script {
+                    docker.build dockerImage, "-f Dockerfile ."
+                    docker.withRegistry('https://registry.hub.docker.com', 'dockerhub_credentials') {
+                        dockerImage.push()
+                    }
                 }
             }
         }

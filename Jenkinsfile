@@ -19,7 +19,7 @@ pipeline {
                 script {
                     docker.build dockerImage, "-f Dockerfile ."
                     docker.withRegistry('https://registry.hub.docker.com', 'dockerhub_credentials') {
-                        dockerImage.push()
+                        dockerImage.withPush()
                     }
                 }
             }

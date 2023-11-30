@@ -1,14 +1,16 @@
-# Use the official Nginx image
-FROM nginx:latest
+# Use the official PHP-FPM image
+FROM php:7.4-fpm
 
-# Remove the default Nginx configuration file
-RUN rm /etc/nginx/conf.d/default.conf
+# Set the working directory in the container
+WORKDIR /var/www/html
 
-# Copy your Nginx configuration file
-COPY nginx/default.conf /etc/nginx/conf.d/
+# Copy the application files to the container
+COPY . .
 
-# Copy your application files
-COPY . /usr/share/nginx/html
+# Install any additional dependencies here
 
-# Expose port 80
-EXPOSE 80
+# Expose port 9000 for PHP-FPM
+EXPOSE 9000
+
+# Start PHP-FPM
+CMD ["php-fpm"]

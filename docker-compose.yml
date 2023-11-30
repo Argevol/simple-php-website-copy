@@ -5,10 +5,3 @@ services:
     image: cheapyd/simple-php-website
     ports:
       - "8080:80"
-    depends_on:
-      - php
-
-  php:
-    image: php:7.4-fpm
-    volumes:
-      - ./path/to/your/app:/var/www/html
